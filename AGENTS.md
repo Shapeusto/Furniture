@@ -8,6 +8,11 @@ Návod pre vývoj a údržbu tohto projektu (pre ľudí aj AI agentov).
 na mieru. Používa **Three.js r128** (načítaný cez CDN) a natívne **ES moduly**. Bez build
 kroku, bez závislostí na `npm`.
 
+**Stav projektu:** absolútne raná verzia (prototyp), nesúvisí s beta verziou. Konečný cieľ
+je eshop — zatiaľ nie je rozhodnuté, či na vlastnom riešení alebo na WordPresse. Tento 3D
+konfigurátor je samostatný klientsky celok, ktorý má ostať znovupoužiteľný. Podrobnosti v
+`architecture.md`. Nič z toho zatiaľ neimplementovať.
+
 ## Spustenie
 
 Projekt nemá build. Stačí staticky servírovať koreň repozitára, napr.:

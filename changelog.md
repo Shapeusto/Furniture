@@ -25,3 +25,5 @@ Všetky významné zmeny tohto projektu sú zaznamenané tu. Formát vychádza z
 ### Pridané
 
 - `AGENTS.md`, `architecture.md`, `changelog.md` — dokumentácia projektu.
+- Do dokumentácie doplnené **budúce smerovanie**: projekt je raný prototyp, konečný cieľ
+  je eshop (vlastné riešenie vs. WordPress — zatiaľ nerozhodnuté).

@@ -35,6 +35,17 @@ data.js  ──►  state.js  ──►  layout.js  ──►  ui.js  (DOM formu
 - Pripája udalosti formulára (`input` pre posuvníky, `change` pre radio tlačidlá),
   tlačidlá `resetCfg` a `copyCfg` (kopírovanie JSON konfigurácie do schránky).
 
+## Budúce smerovanie (dôležité pre rozhodovanie)
+
+- Toto je **absolútne raná verzia** (prototyp). Nemá nič spoločné s beta verziou.
+- Cieľový produkt je **eshop**. Ešte **nie je rozhodnuté**, či bude postavený na vlastnom
+  riešení alebo na **WordPresse**.
+- Z toho vyplýva: aktuálny 3D konfigurátor je samostatný, čisto klientsky celok. Pri
+  rozhodovaní o nových funkciách treba myslieť na to, že neskôr môže byť osadený do iného
+  prostredia (WordPress/plugin, serverový backend, nákupný košík, PIM/ERP).
+- Zatiaľ sa nič z toho **neimplementuje**; voľby nižšie treba len brať do úvahy, aby sa
+  prototyp nezatváral pred budúcim znovupoužitím.
+
 ## Kľúčové rozhodnutia
 
 - **Three.js cez CDN + globálny `THREE`**, nie npm — zachováva bez-build charakter.
