@@ -55,6 +55,10 @@ js/scene.js       # Three.js scéna, materiály, stavba modelu
 - **Kód bez komentárov** mimo krátkych štrukturálnych oddelení, ktoré už existujú.
 - Texty používateľského rozhrania sú po slovensky.
 
+## Git
+
+- **Commitovať ani pushovať len na výslovný príkaz.** Bez neho nechávať zmeny len v pracovnom strome.
+
 ## Zmeny a dokumentácia
 
 Pri každej zmene aktualizujte `changelog.md` (nový záznam pod „Nepublikované") a podľa
