@@ -5,6 +5,15 @@ import { woodCanvas } from './textures.js';
 
 var form = document.getElementById('controls');
 
+function idOf(item) { return Array.isArray(item) ? item[0] : item.id; }
+function labelOf(item) { return Array.isArray(item) ? item[1] : item.label; }
+function hintOf(item) { return Array.isArray(item) ? item[2] : item.hint; }
+
+function findById(list, id) {
+  for (var i = 0; i < list.length; i++) if (list[i].id === id) return list[i];
+  return null;
+}
+
 function slider(key, label, min, max, step) {
   return '<div class="group"><div class="row"><label for="s-' + key + '">' + label + '</label><output id="o-' + key + '" for="s-' + key + '"></output></div>' +
     '<input type="range" id="s-' + key + '" min="' + min + '" max="' + max + '" step="' + step + '" value="' + state[key] + '">' +
@@ -14,7 +23,7 @@ function slider(key, label, min, max, step) {
 function seg(key, label, opts, withHint) {
   return '<fieldset class="group" id="g-' + key + '"><legend>' + label + '</legend><div class="seg">' +
     opts.map(function (o) {
-      return '<label><input type="radio" name="' + key + '" value="' + o[0] + '"><span>' + o[1] + '</span></label>';
+      return '<label><input type="radio" name="' + key + '" value="' + idOf(o) + '"><span>' + labelOf(o) + '</span></label>';
     }).join('') + '</div>' + (withHint ? '<p class="hint" data-hint="' + key + '"></p>' : '') + '</fieldset>';
 }
 
@@ -61,12 +70,12 @@ function hintFor(key) {
   var lists = { front: FRONTS, finish: FINISHES, handle: HANDLES, legs: LEGS };
   if (key === 'material') return MATS[state.material].desc;
   var list = lists[key];
-  for (var i = 0; i < list.length; i++) if (list[i][0] === state[key]) return list[i][2];
+  for (var i = 0; i < list.length; i++) if (idOf(list[i]) === state[key]) return hintOf(list[i]);
   return '';
 }
 
 function nameOf(list, key) {
-  for (var i = 0; i < list.length; i++) if (list[i][0] === key) return list[i][1];
+  for (var i = 0; i < list.length; i++) if (idOf(list[i]) === key) return labelOf(list[i]);
   return key;
 }
 
@@ -100,10 +109,11 @@ export function updateUI() {
   var fronts = state.front === 'drawers'
     ? (L.n * L.r) + ' drawers (' + L.n + ' × ' + L.r + ')'
     : L.n + (L.n === 1 ? ' door' : ' doors');
-  var handleTxt = 'no handles';
-  if (state.handle === 'bar') handleTxt = 'bar handles ' + L.c2c + ' mm, ' + nameOf(HANDLE_COLORS, state.handleColor).toLowerCase();
-  if (state.handle === 'knob') handleTxt = 'knobs, ' + nameOf(HANDLE_COLORS, state.handleColor).toLowerCase();
-  if (state.handle === 'edge') handleTxt = 'rail, ' + nameOf(HANDLE_COLORS, state.handleColor).toLowerCase();
+  var handle = findById(HANDLES, state.handle);
+  var handleTxt = 'No handles';
+  if (handle && handle.kind !== 'none') {
+    handleTxt = handle.label + ', ' + nameOf(HANDLE_COLORS, state.handleColor).toLowerCase();
+  }
 
   var rows = [
     ['Dimensions', state.w + ' × ' + state.h + ' × ' + state.d + ' cm', true],
@@ -111,7 +121,7 @@ export function updateUI() {
     ['Surface', surface, false],
     ['Material', MATS[state.material].name + ', ' + nameOf(FINISHES, state.finish).toLowerCase(), false],
     ['Handles', handleTxt, false],
-    ['Base', nameOf(LEGS, state.legs).toLowerCase() + ', ' + L.legH + ' cm', false]
+    ['Base', nameOf(LEGS, state.legs), false]
   ];
   document.getElementById('sum').innerHTML = rows.map(function (r) {
     return '<dt>' + r[0] + '</dt><dd' + (r[2] ? ' class="mono"' : '') + '>' + r[1] + '</dd>';

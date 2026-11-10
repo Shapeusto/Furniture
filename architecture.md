@@ -15,7 +15,9 @@ data.js  ──►  state.js  ──►  layout.js  ──►  ui.js  (DOM form 
 ```
 
 1. **`data.js`** — immutable static data: `WOODS`, `MATS`, `FINISHES`, `COLORS`,
-   `HANDLES`, `HANDLE_COLORS`, `FRONTS`, `LEGS`, `STD_C2C` and `DEFAULTS`.
+   `HANDLES`, `HANDLE_COLORS`, `FRONTS`, `LEGS` and `DEFAULTS`. `HANDLES` and `LEGS` are
+   serializable supplier-product catalogs (`kind: 'product' | 'procedural' | 'none'`); each
+   `product` carries a `modelUrl` (GLB) and its physical dimensions (handles in mm, legs in cm).
 2. **`state.js`** — the single mutable `state` object initialized from `DEFAULTS`, plus
    `resetState()`. It is the source of truth for the current configuration.
 3. **`layout.js`** — pure functions deriving dimensions from `state` (`layout()`), e.g. the
@@ -52,6 +54,9 @@ data.js  ──►  state.js  ──►  layout.js  ──►  ui.js  (DOM form 
   WebGL is missing.
 - **Procedural wood textures** replace photos of materials in the prototype (generated in
   `textures.js`, reused for the wood swatches).
+- **Handles and legs as supplier products** — `HANDLES`/`LEGS` are serializable catalogs.
+  For now `scene.js` renders simple placeholder boxes scaled to the product dimensions; the
+  real GLB models (`modelUrl`) will replace them later.
 - **Responsiveness**: grid layout "stage | panel"; on narrow screens the stage becomes
   sticky and the panel scrolls beneath it (`css/style.css`).
 - **Theme**: CSS variables + support for `prefers-color-scheme` and `data-theme`.

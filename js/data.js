@@ -1,7 +1,7 @@
 export const DEFAULTS = {
   front: 'drawers', w: 160, h: 85, d: 42,
   wood: 'dub', color: 'natural', material: 'massive', finish: 'satin',
-  handle: 'bar', handleColor: 'brass', legs: 'legs'
+  handle: 'bar_128', handleColor: 'brass', legs: 'leg_14'
 };
 
 export const WOODS = {
@@ -37,11 +37,27 @@ export const COLORS = [
   ['burgundy', 'Burgundy', '#6c2d36']
 ];
 
+// Handles and legs are supplier products. Each `product` carries its own 3D model (GLB)
+// and physical dimensions. Dimensions are in millimetres (like c2c); the 3D scene works in
+// centimetres, so values are divided by 10 there. All data stays JSON-serializable (PIM/eshop).
 export const HANDLES = [
-  ['bar', 'Bar', 'Classic bar handle with standard hole spacings.'],
-  ['knob', 'Knob', 'One knob on each front.'],
-  ['edge', 'Rail', 'Profile on the edge of the front, no protruding parts.'],
-  ['none', 'No handles', 'Clean front, push-to-open or finger-groove opening.']
+  { id: 'bar_128', label: 'Bar 128 mm', hint: 'Classic bar handle, 128 mm hole spacing.',
+    kind: 'product', supplierCode: 'H-BAR-128', price: 4.9, modelUrl: 'models/handles/Viefe_673_BEAM_32_1_3d_iDXp4I4ZRm.glb',
+    width: 152, height: 12, depth: 32, c2c: 128, placement: 'center' },
+  { id: 'bar_192', label: 'Bar 192 mm', hint: 'Classic bar handle, 192 mm hole spacing.',
+    kind: 'product', supplierCode: 'H-BAR-192', price: 5.4, modelUrl: 'models/handles/bar_192.glb',
+    width: 216, height: 12, depth: 32, c2c: 192, placement: 'center' },
+  { id: 'bar_256', label: 'Bar 256 mm', hint: 'Classic bar handle, 256 mm hole spacing.',
+    kind: 'product', supplierCode: 'H-BAR-256', price: 5.9, modelUrl: 'models/handles/bar_256.glb',
+    width: 280, height: 12, depth: 32, c2c: 256, placement: 'center' },
+  { id: 'knob_30', label: 'Knob 30 mm', hint: 'Round knob, 30 mm diameter.',
+    kind: 'product', supplierCode: 'H-KNOB-30', price: 3.2, modelUrl: 'models/handles/knob_30.glb',
+    width: 30, height: 30, depth: 28, c2c: 0, placement: 'top' },
+  { id: 'knob_40', label: 'Knob 40 mm', hint: 'Round knob, 40 mm diameter.',
+    kind: 'product', supplierCode: 'H-KNOB-40', price: 3.8, modelUrl: 'models/handles/knob_40.glb',
+    width: 40, height: 40, depth: 32, c2c: 0, placement: 'top' },
+  { id: 'edge', label: 'Rail', hint: 'Profile on the edge of the front, no protruding parts.', kind: 'procedural' },
+  { id: 'none', label: 'No handles', hint: 'Clean front, push-to-open or finger-groove opening.', kind: 'none' }
 ];
 
 export const HANDLE_COLORS = [
@@ -55,9 +71,16 @@ export const FRONTS = [
   ['doors', 'Doors', 'One door per column.']
 ];
 
+// Leg height is in centimetres (the scene is in cm); handle dimensions above are in mm.
 export const LEGS = [
-  ['legs', 'Legs', 'Dowel legs, 14 cm.'],
-  ['plinth', 'Plinth', 'Recessed plinth, 8 cm.']
+  { id: 'leg_10', label: 'Legs 10 cm', hint: 'Dowel legs, 10 cm.',
+    kind: 'product', supplierCode: 'L-LEG-10', price: 8.0, modelUrl: 'models/legs/leg_10.glb',
+    height: 10, count: 4, inset: 6 },
+  { id: 'leg_14', label: 'Legs 14 cm', hint: 'Dowel legs, 14 cm.',
+    kind: 'product', supplierCode: 'L-LEG-14', price: 8.5, modelUrl: 'models/legs/leg_14.glb',
+    height: 14, count: 4, inset: 6 },
+  { id: 'leg_18', label: 'Legs 18 cm', hint: 'Dowel legs, 18 cm.',
+    kind: 'product', supplierCode: 'L-LEG-18', price: 9.0, modelUrl: 'models/legs/leg_18.glb',
+    height: 18, count: 4, inset: 6 },
+  { id: 'plinth', label: 'Plinth', hint: 'Recessed plinth, 8 cm.', kind: 'procedural', height: 8 }
 ];
-
-export const STD_C2C = [96, 128, 160, 192, 224, 320]; // standard handle spacing in mm

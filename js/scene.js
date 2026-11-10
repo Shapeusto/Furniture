@@ -1,16 +1,92 @@
-import { COLORS, HANDLE_COLORS } from './data.js';
+import { COLORS, HANDLE_COLORS, HANDLES, LEGS } from './data.js';
 import { state } from './state.js';
 import { layout } from './layout.js';
 import { woodCanvas } from './textures.js';
+
+function findById(list, id) {
+  for (var i = 0; i < list.length; i++) if (list[i].id === id) return list[i];
+  return null;
+}
 
 var stage = document.getElementById('stage');
 var canvas = document.getElementById('gl');
 var T = window.THREE;
 var ready = !!(T && T.OrbitControls);
 var renderer, scene, camera, controls, group, matCache = {}, texCache = {}, seed = 0;
+var modelCache = {}, modelLoading = {};
 
 function fail(msg) {
   stage.insertAdjacentHTML('beforeend', '<p class="fail">' + msg + '</p>');
+}
+
+// Load a product GLB once, normalize it to scene units (cm) and cache the template.
+function ensureProductModel(product, onLoaded) {
+  if (!product || !product.modelUrl) { onLoaded(null); return; }
+  if (modelCache[product.id]) { onLoaded(modelCache[product.id]); return; }
+  if (!T.GLTFLoader) { onLoaded(null); return; }
+  if (modelLoading[product.id]) { onLoaded(null); return; }
+  modelLoading[product.id] = true;
+  var loader = new T.GLTFLoader();
+  loader.load(product.modelUrl, function (gltf) {
+    modelLoading[product.id] = false;
+    modelCache[product.id] = normalizeModel(gltf.scene, product);
+    onLoaded(modelCache[product.id]);
+  }, undefined, function () {
+    modelLoading[product.id] = false;
+    onLoaded(null);
+  });
+}
+
+// Scale/rotate/centre a loaded model so its long side matches the product width (cm),
+// the long axis lies on X and the mounting face sits at z = 0.
+function normalizeModel(root, product) {
+  root.updateMatrixWorld(true);
+  var box = new T.Box3().setFromObject(root);
+  var size = new T.Vector3();
+  box.getSize(size);
+
+  var longAxis = 'x';
+  if (size.y > size[longAxis]) longAxis = 'y';
+  if (size.z > size[longAxis]) longAxis = 'z';
+
+  var widthCm = product.width / 10;
+  var scale = widthCm / size[longAxis];
+
+  var template = new T.Group();
+  template.add(root);
+
+  if (longAxis === 'y') root.rotation.z = -Math.PI / 2;
+  else if (longAxis === 'z') root.rotation.x = Math.PI / 2;
+
+  if (product.modelRotation) {
+    root.rotation.x += (product.modelRotation[0] || 0) * Math.PI / 180;
+    root.rotation.y += (product.modelRotation[1] || 0) * Math.PI / 180;
+    root.rotation.z += (product.modelRotation[2] || 0) * Math.PI / 180;
+  }
+
+  root.scale.setScalar(scale);
+  root.updateMatrixWorld(true);
+
+  box.setFromObject(template);
+  var center = box.getCenter(new T.Vector3());
+  root.position.x = -center.x;
+  root.position.y = -center.y;
+  root.position.z = -box.min.z;
+  root.updateMatrixWorld(true);
+
+  return template;
+}
+
+// Deep-clone the template so each handle gets its own geometry/material (safe to dispose).
+function cloneModel(template) {
+  var clone = template.clone(true);
+  clone.traverse(function (o) {
+    if (o.isMesh) {
+      o.geometry = o.geometry.clone();
+      o.material = o.material.clone();
+    }
+  });
+  return clone;
 }
 
 function woodTexture(key, mat) {
@@ -92,13 +168,6 @@ function add(geo, mat, x, y, z, shadows) {
 
 function box(w, h, d, mat, grain, x, y, z) { return add(boxGeo(w, h, d, grain), mat, x, y, z); }
 
-function cyl(r1, r2, len, mat, x, y, z, rotX, rotZ) {
-  var m = add(new T.CylinderGeometry(r1, r2, len, 20), mat, x, y, z);
-  if (rotX) m.rotation.x = rotX;
-  if (rotZ) m.rotation.z = rotZ;
-  return m;
-}
-
 function clearGroup() {
   for (var i = group.children.length - 1; i >= 0; i--) {
     var ch = group.children[i];
@@ -107,28 +176,44 @@ function clearGroup() {
   }
 }
 
-function addHandle(hm, cx, cy, fw, fh, isDoor, side, c2c, zf) {
-  var HALF = Math.PI / 2, s = 3.0;
-  if (state.handle === 'bar') {
-    var len = c2c / 10 + 2.0, half = c2c / 20;
-    if (isDoor) {
-      var hx = cx + side * (fw / 2 - 4.5);
-      cyl(0.5, 0.5, len, hm, hx, cy, zf + s);
-      cyl(0.45, 0.45, s, hm, hx, cy + half, zf + s / 2, HALF, 0);
-      cyl(0.45, 0.45, s, hm, hx, cy - half, zf + s / 2, HALF, 0);
+function addHandle(template, hp, hm, cx, cy, fw, fh, isDoor, side, zf) {
+  if (template) {
+    var kx, ky, rotZ = 0;
+    if (hp.placement === 'top') {
+      kx = isDoor ? cx + side * (fw / 2 - 3) : cx;
+      ky = isDoor ? (fh > 40 ? cy + fh / 2 - 4 : cy) : cy + fh / 2 - hp.height / 20 - 1;
+    } else if (isDoor) {
+      kx = cx + side * (fw / 2 - 3);
+      ky = cy;
+      rotZ = -Math.PI / 2;
     } else {
-      var hy = cy + fh * 0.12;
-      cyl(0.5, 0.5, len, hm, cx, hy, zf + s, 0, HALF);
-      cyl(0.45, 0.45, s, hm, cx + half, hy, zf + s / 2, HALF, 0);
-      cyl(0.45, 0.45, s, hm, cx - half, hy, zf + s / 2, HALF, 0);
+      kx = cx;
+      ky = cy + fh * 0.12;
     }
-  } else if (state.handle === 'knob') {
-    var kx = isDoor ? cx + side * (fw / 2 - 5) : cx;
-    var ky = isDoor ? (fh > 40 ? cy + fh / 2 - 7 : cy) : cy + fh * 0.1;
-    cyl(0.55, 0.65, 2.0, hm, kx, ky, zf + 1.0, HALF, 0);
-    var head = add(new T.SphereGeometry(1.5, 24, 16), hm, kx, ky, zf + 2.5);
-    head.scale.set(1, 1, 0.85);
-  } else if (state.handle === 'edge') {
+    var m = cloneModel(template);
+    m.rotation.z = rotZ;
+    m.position.set(kx, ky, zf);
+    m.traverse(function (o) {
+      if (o.isMesh) { o.castShadow = true; o.receiveShadow = true; }
+    });
+    group.add(m);
+    return;
+  }
+  if (hp.kind === 'product') {
+    // Placeholder: a box scaled to the product dimensions (mm -> cm).
+    var wcm = hp.width / 10, hcm = hp.height / 10, dcm = hp.depth / 10;
+    if (hp.placement === 'top') {
+      var kx = isDoor ? cx + side * (fw / 2 - 3) : cx;
+      var ky = isDoor ? (fh > 40 ? cy + fh / 2 - 4 : cy) : cy + fh / 2 - hcm / 2 - 1;
+      box(wcm, hcm, dcm, hm, 'x', kx, ky, zf + dcm / 2);
+    } else {
+      if (isDoor) {
+        box(hcm, wcm, dcm, hm, 'x', cx + side * (fw / 2 - 3), cy, zf + dcm / 2);
+      } else {
+        box(wcm, hcm, dcm, hm, 'x', cx, cy + fh * 0.12, zf + dcm / 2);
+      }
+    }
+  } else if (hp.kind === 'procedural') {
     if (isDoor) {
       box(2.8, fh - 1, 1.6, hm, 'y', cx + side * (fw / 2 - 1.4), cy, zf + 0.8);
     } else {
@@ -178,19 +263,26 @@ export function build() {
   }
 
   // Handles
-  if (state.handle !== 'none') {
+  var hp = findById(HANDLES, state.handle);
+  if (hp && hp.kind !== 'none') {
     var hm = handleMat(state.handleColor);
+    var template = hp.kind === 'product' ? (modelCache[hp.id] || null) : null;
+    if (!template && hp.kind === 'product' && hp.modelUrl) {
+      ensureProductModel(hp, function (tpl) { if (tpl) build(); });
+    }
     fronts.forEach(function (f) {
       var side = f.cx < -0.1 ? 1 : -1;
-      addHandle(hm, f.cx, f.cy, L.fw, L.fh, state.front === 'doors', side, L.c2c, zf);
+      addHandle(template, hp, hm, f.cx, f.cy, L.fw, L.fh, state.front === 'doors', side, zf);
     });
   }
 
   // Base
-  if (state.legs === 'legs') {
+  var lp = findById(LEGS, state.legs);
+  if (lp && lp.kind === 'product') {
+    var inset = lp.inset || 6;
     [-1, 1].forEach(function (sx) {
       [-1, 1].forEach(function (sz) {
-        cyl(2.1, 1.4, legH, woodM, sx * (w / 2 - 6), legH / 2, sz * (d / 2 - 6));
+        box(4, legH, 4, woodM, 'y', sx * (w / 2 - inset), legH / 2, sz * (d / 2 - inset));
       });
     });
   } else {

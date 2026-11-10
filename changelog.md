@@ -9,6 +9,25 @@ All notable changes to this project are documented here. The format is based on
 
 - The whole project is now maintained in **English** (code, comments, documentation, UI
   texts, JSON configuration keys).
+- `HANDLES` and `LEGS` in `js/data.js` converted from `[id, label, hint]` tuples to objects
+  (`id`, `label`, `hint`, `kind`, plus supplier fields for products). `bar`/`knob` split into
+  fixed products (`bar_128`, `bar_192`, `bar_256`, `knob_30`, `knob_40`); `legs` split into
+  `leg_10`, `leg_14`, `leg_18`. `edge` and `plinth` stay procedural, `none` stays `none`.
+- `DEFAULTS.handle` → `bar_128`, `DEFAULTS.legs` → `leg_14`.
+- `js/layout.js`: `legH` now read from the selected leg product; handle `c2c` read from the
+  selected handle product. Removed `pickC2C`/`STD_C2C`.
+- `js/ui.js`: `seg()`, `hintFor()` and `nameOf()` now read both tuples and objects; handle
+  summary text uses the product label.
+- `js/scene.js`: handles and legs render as placeholders sized to the product dimensions
+  (mm → cm); removed the procedural cylinder/sphere handle code.
+
+### Added
+
+- GLB model loading for handle products: `GLTFLoader` (r128) loaded from CDN in `index.html`.
+  `js/scene.js` loads each product model once (cached), normalizes it (long side → product
+  width in cm, long axis → X, mounted face → z=0) and clones it per handle, falling back to
+  the placeholder until loaded (or on failure). `Viefe_673_BEAM_32_1_3d_iDXp4I4ZRm.glb` moved
+  to `models/handles/` and set as `modelUrl` for `bar_128`.
 
 ## [0.1.0] — initial split
 
