@@ -227,11 +227,11 @@ export function resetView() {
 }
 
 export function initThree() {
-  if (!ready) { fail('Knižnicu pre 3D zobrazenie sa nepodarilo načítať. Skúste stránku obnoviť.'); return; }
+  if (!ready) { fail('Failed to load the 3D library. Please refresh the page.'); return; }
   try {
     renderer = new T.WebGLRenderer({ canvas: canvas, antialias: true, alpha: true });
   } catch (e) {
-    ready = false; fail('Tento prehliadač nepodporuje 3D zobrazenie (WebGL).'); return;
+    ready = false; fail('This browser does not support 3D (WebGL).'); return;
   }
   renderer.setPixelRatio(Math.min(window.devicePixelRatio || 1, 2));
   renderer.outputEncoding = T.sRGBEncoding;

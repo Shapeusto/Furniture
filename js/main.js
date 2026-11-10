@@ -33,22 +33,22 @@ document.getElementById('resetCfg').addEventListener('click', function () {
   resetState();
   syncInputs(); refresh();
   if (isReady()) resetView();
-  setStatus('Vrátené pôvodné nastavenie.');
+  setStatus('Reset to defaults.');
 });
 
 document.getElementById('copyCfg').addEventListener('click', function () {
   var L = layout();
   var cfg = JSON.stringify({
-    rozmery_cm: { sirka: state.w, vyska: state.h, hlbka: state.d },
-    cela: state.front, stlpce: L.n, rady: L.r,
-    drevo: state.wood, farba: state.color, material: state.material, povrch: state.finish,
-    rucky: state.handle, farba_rucok: state.handle === 'none' ? null : state.handleColor,
-    rozstup_rucky_mm: L.c2c || null, podstavec: state.legs
+    dimensions_cm: { width: state.w, height: state.h, depth: state.d },
+    front: state.front, columns: L.n, rows: L.r,
+    wood: state.wood, color: state.color, material: state.material, finish: state.finish,
+    handles: state.handle, handle_color: state.handle === 'none' ? null : state.handleColor,
+    handle_spacing_mm: L.c2c || null, base: state.legs
   }, null, 2);
   var ta = document.getElementById('json');
   ta.value = cfg;
-  var done = function () { ta.hidden = true; setStatus('Konfigurácia je skopírovaná.'); };
-  var fallback = function () { ta.hidden = false; ta.focus(); ta.select(); setStatus('Označte text a skopírujte ho.'); };
+  var done = function () { ta.hidden = true; setStatus('Configuration copied.'); };
+  var fallback = function () { ta.hidden = false; ta.focus(); ta.select(); setStatus('Select the text and copy it.'); };
   if (navigator.clipboard && navigator.clipboard.writeText) {
     navigator.clipboard.writeText(cfg).then(done, fallback);
   } else { fallback(); }

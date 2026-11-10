@@ -1,55 +1,56 @@
-# Furniture — Konfigurátor nábytku
+# Furniture — Furniture Configurator
 
-Interaktívna 3D vizualizácia komody na mieru. Čisto klientsky prototyp (Three.js r128 cez
-CDN, natívne ES moduly, bez build kroku a bez závislostí na `npm`).
+Interactive 3D visualization of a made-to-measure chest of drawers. A purely client-side
+prototype (Three.js r128 via CDN, native ES modules, no build step, no `npm` dependencies).
 
-## Spustenie
+## Running
 
-Projekt nemá build, stačí staticky servírovať koreň repozitára.
+There is no build; just serve the repository root statically.
 
 ```sh
-# cez npx
+# via npx
 npx serve .
 
-# alebo cez Python
+# or via Python
 python -m http.server 8000
 ```
 
-Potom otvoriť v prehliadači `http://localhost:8000`.
+Then open `http://localhost:8000` in a browser.
 
-> ES moduly aj CDN skripty vyžadujú HTTP(S) — priame otvorenie `index.html` cez `file://`
-> nebude fungovať.
+> ES modules and CDN scripts require HTTP(S) — opening `index.html` directly via `file://`
+> will not work.
 
-## Štruktúra
+## Structure
 
 ```
-index.html        HTML kostra
-css/style.css     štýly a dizajnové tokeny
-js/main.js        vstupný bod
-js/data.js        statické dáta
-js/state.js       centrálny stav
-js/layout.js      výpočet rozmerov
-js/textures.js    procedurálne textúry dreva
-js/ui.js          formulár a súhrn
-js/scene.js       Three.js scéna
+index.html        HTML skeleton
+css/style.css     styles and design tokens
+js/main.js        entry point
+js/data.js        static data
+js/state.js       central state
+js/layout.js      dimension/layout calculations
+js/textures.js    procedural wood textures
+js/ui.js          form and summary
+js/scene.js       Three.js scene
 ```
 
-## Základy pre prácu s AI
+## Basics for working with AI
 
-Krátka orientácia, aby agent nemusel čítať celý kód. Podrobný návod je v `AGENTS.md`,
-architektúra v `architecture.md`.
+A quick orientation so an agent does not need to read all the code. The full guide is in
+`AGENTS.md`, the architecture in `architecture.md`.
 
-- **Bez build kroku** — žiadny Node/bundler, žiadne npm závislosti. ES moduly + Three.js cez CDN.
-- **Dátový tok je jednosmerný:** `data.js` (nemenné dáta) → `state.js` (mutovateľný stav)
-  → `layout.js` (odvodené rozmery) → `ui.js` (DOM) a `scene.js` (3D). Vstupný bod `main.js`.
-- **Stav** je jediný objekt `state` z `js/state.js`. Zmena = mutácia `state[key] = value`
-  a potom `refresh()` (`updateUI()` + `build()`). Reset cez `resetState()`, nie novou referenciou.
-- **Three.js** len cez `window.THREE` v `js/scene.js` — neimportovať ako modul.
-- **Väzba mien:** hodnoty `state` sa zhodujú s kľúčmi v `data.js` a s `name`/`id` v generovanom
-  formulári. Pri pridávaní možnosti túto väzbu zachovať.
-- **Dokumentáciu udržiavať aktuálnu** — každá zmena = nový záznam v `changelog.md`
-  (pod „Nepublikované") a podľa potreby `architecture.md`.
-- **Git:** commity/push len na výslovný príkaz.
-- **Overenie:** `node --check js/main.js` (syntax), funkčnosť v prehliadači cez lokálny server.
+- **No build step** — no Node/bundler, no npm dependencies. ES modules + Three.js via CDN.
+- **Data flow is one-way:** `data.js` (immutable data) → `state.js` (mutable state)
+  → `layout.js` (derived dimensions) → `ui.js` (DOM) and `scene.js` (3D). Entry point `main.js`.
+- **State** is a single `state` object from `js/state.js`. To change it, mutate
+  `state[key] = value` then call `refresh()` (`updateUI()` + `build()`). Reset via
+  `resetState()`, not by replacing the reference.
+- **Three.js** is accessed only via `window.THREE` in `js/scene.js` — do not import it as a module.
+- **Name binding:** `state` values match keys in `data.js` and the `name`/`id` attributes in
+  the generated form. Keep this binding when adding options.
+- **Keep the docs current** — every change gets a new entry in `changelog.md`
+  (under "Unreleased") and, if needed, in `architecture.md`.
+- **Git:** commit/push only on explicit request.
+- **Check:** `node --check js/main.js` (syntax), functionality in the browser via a local server.
 
-Ďalšie podrobnosti: `AGENTS.md`, `architecture.md`, `changelog.md`.
+More details: `AGENTS.md`, `architecture.md`, `changelog.md`.

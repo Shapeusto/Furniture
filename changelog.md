@@ -1,29 +1,38 @@
 # Changelog
 
-Všetky významné zmeny tohto projektu sú zaznamenané tu. Formát vychádza z
-[Keep a Changelog](https://keepachangelog.com/sk/1.1.0/).
+All notable changes to this project are documented here. The format is based on
+[Keep a Changelog](https://keepachangelog.com/en/1.1.0/).
 
-## [Nepublikované]
+## [Unreleased]
 
-### Zmenené
+### Changed
 
-- Rozdelený pôvodný monolitický súbor `this.html` do štandardnej štruktúry:
-  - `index.html` — HTML kostra a načítanie štýlov/Three.js/vstupného modulu.
-  - `css/style.css` — všetky štýly (spojené oba pôvodné `<style>` bloky).
-  - `js/data.js` — statické dáta (drevo, farby, materiály, rúčky, …).
-  - `js/state.js` — centrálny mutovateľný stav a `resetState()`.
-  - `js/layout.js` — výpočet rozmerov/rozloženia.
-  - `js/textures.js` — procedurálne textúry dreva.
-  - `js/ui.js` — vykreslenie formulára a súhrnu.
-  - `js/scene.js` — Three.js scéna a stavba modelu.
-  - `js/main.js` — vstupný bod a drôty udalostí.
-- Logika prepísaná z IIFE (`var`, globálny scope) na natívne ES moduly bez zmeny správania.
-- `state = Object.assign({}, DEFAULTS)` pri resete nahradený `resetState()` (mutácia
-  jediného `state` objektu, aby ostala referenčná väzba naprieč modulmi).
-- `<title>` a `<meta>` presunuté korektne do `<head>`.
+- The whole project is now maintained in **English** (code, comments, documentation, UI
+  texts, JSON configuration keys).
 
-### Pridané
+## [0.1.0] — initial split
 
-- `AGENTS.md`, `architecture.md`, `changelog.md` — dokumentácia projektu.
-- Do dokumentácie doplnené **budúce smerovanie**: projekt je raný prototyp, konečný cieľ
-  je eshop (vlastné riešenie vs. WordPress — zatiaľ nerozhodnuté).
+### Changed
+
+- Split the original monolithic `this.html` into a standard structure:
+  - `index.html` — HTML skeleton and loading of styles/Three.js/entry module.
+  - `css/style.css` — all styles (both original `<style>` blocks merged).
+  - `js/data.js` — static data (wood, colours, materials, handles, ...).
+  - `js/state.js` — central mutable state and `resetState()`.
+  - `js/layout.js` — dimension/layout calculations.
+  - `js/textures.js` — procedural wood textures.
+  - `js/ui.js` — form and summary rendering.
+  - `js/scene.js` — Three.js scene and model building.
+  - `js/main.js` — entry point and event wiring.
+- Rewrote the logic from an IIFE (`var`, global scope) to native ES modules without
+  changing behaviour.
+- Replaced `state = Object.assign({}, DEFAULTS)` on reset with `resetState()` (mutation of
+  the single `state` object to keep the reference binding across modules).
+- Moved `<title>` and `<meta>` correctly into `<head>`.
+
+### Added
+
+- `AGENTS.md`, `architecture.md`, `changelog.md` — project documentation.
+- `README.md` — how to run the project and basics for AI.
+- Documented **future direction**: early prototype, end goal is an eshop (custom solution
+  vs. WordPress — undecided).

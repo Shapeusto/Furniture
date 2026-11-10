@@ -19,7 +19,7 @@ function seg(key, label, opts, withHint) {
 }
 
 function woodSwatches() {
-  return '<fieldset class="group"><legend>Drevo</legend><div class="swgrid">' +
+  return '<fieldset class="group"><legend>Wood</legend><div class="swgrid">' +
     Object.keys(WOODS).map(function (k) {
       var url = woodCanvas(k, 'massive').toDataURL('image/jpeg', 0.75);
       return '<label class="sw"><input type="radio" name="wood" value="' + k + '"><span class="chipimg" style="background-image:url(' + url + ')"></span><em>' + WOODS[k].name + '</em></label>';
@@ -27,7 +27,7 @@ function woodSwatches() {
 }
 
 function colorSwatches() {
-  return '<fieldset class="group"><legend>Farba</legend><div class="swgrid">' +
+  return '<fieldset class="group"><legend>Colour</legend><div class="swgrid">' +
     COLORS.map(function (c) {
       var cls = c[2] ? '' : ' natural';
       var st = c[2] ? ' style="background:' + c[2] + '"' : '';
@@ -36,7 +36,7 @@ function colorSwatches() {
 }
 
 function handleColorSwatches() {
-  return '<fieldset class="group" id="g-handleColor"><legend>Farba rúčok</legend><div class="swgrid small" id="hcGrid">' +
+  return '<fieldset class="group" id="g-handleColor"><legend>Handle colour</legend><div class="swgrid small" id="hcGrid">' +
     HANDLE_COLORS.map(function (c) {
       return '<label class="sw"><input type="radio" name="handleColor" value="' + c[0] + '"><span class="chipimg" style="background:linear-gradient(135deg,' + c[2] + ',' + c[2] + ' 45%,rgba(255,255,255,0.55) 55%,' + c[2] + ' 65%)"></span><em>' + c[1] + '</em></label>';
     }).join('') + '</div></fieldset>';
@@ -45,16 +45,16 @@ function handleColorSwatches() {
 export function buildForm() {
   form.innerHTML =
     '<div class="group-wrap" style="display:flex;flex-direction:column;gap:18px">' +
-    slider('w', 'Šírka', 60, 240, 5) + slider('h', 'Výška', 60, 140, 5) + slider('d', 'Hĺbka', 30, 60, 1) +
+    slider('w', 'Width', 60, 240, 5) + slider('h', 'Height', 60, 140, 5) + slider('d', 'Depth', 30, 60, 1) +
     '</div>' +
-    seg('front', 'Čelá', FRONTS, true) +
+    seg('front', 'Fronts', FRONTS, true) +
     woodSwatches() +
     colorSwatches() +
-    seg('material', 'Materiál', Object.keys(MATS).map(function (k) { return [k, MATS[k].name, MATS[k].desc]; }), true) +
-    seg('finish', 'Povrch', FINISHES, true) +
-    seg('handle', 'Rúčky', HANDLES, true) +
+    seg('material', 'Material', Object.keys(MATS).map(function (k) { return [k, MATS[k].name, MATS[k].desc]; }), true) +
+    seg('finish', 'Finish', FINISHES, true) +
+    seg('handle', 'Handles', HANDLES, true) +
     handleColorSwatches() +
-    seg('legs', 'Podstavec', LEGS, true);
+    seg('legs', 'Base', LEGS, true);
 }
 
 function hintFor(key) {
@@ -81,8 +81,8 @@ export function updateUI() {
   var hints = form.querySelectorAll('[data-hint]');
   for (var i = 0; i < hints.length; i++) hints[i].textContent = hintFor(hints[i].getAttribute('data-hint'));
   document.getElementById('colorHint').textContent = state.color === 'natural'
-    ? 'Viditeľná kresba vybraného dreva.'
-    : 'Korpus a čelá sú lakované, vrchná doska a nožičky ostávajú v dreve.';
+    ? 'Shows the grain of the selected wood.'
+    : 'Carcass and fronts are painted; the top and legs stay in wood.';
   var none = state.handle === 'none';
   document.getElementById('hcGrid').classList.toggle('disabled', none);
   var hcInputs = document.querySelectorAll('#hcGrid input');
@@ -91,27 +91,27 @@ export function updateUI() {
 
   var L = layout();
   document.getElementById('dims').innerHTML =
-    '<span><b>Š</b>' + state.w + '</span><span><b>V</b>' + state.h + '</span><span><b>H</b>' + state.d + '</span><span>cm</span>';
+    '<span><b>W</b>' + state.w + '</span><span><b>H</b>' + state.h + '</span><span><b>D</b>' + state.d + '</span><span>cm</span>';
 
   var colorName = nameOf(COLORS, state.color);
   var surface = state.color === 'natural'
     ? WOODS[state.wood].name + ', ' + MATS[state.material].name.toLowerCase()
-    : colorName + ' lak, vrch ' + WOODS[state.wood].name.toLowerCase();
+    : colorName + ' lacquer, top in ' + WOODS[state.wood].name.toLowerCase();
   var fronts = state.front === 'drawers'
-    ? (L.n * L.r) + ' zásuviek (' + L.n + ' × ' + L.r + ')'
-    : L.n + (L.n === 1 ? ' dvierka' : ' dvierka');
-  var handleTxt = 'bez rúčok';
-  if (state.handle === 'bar') handleTxt = 'tyčové ' + L.c2c + ' mm, ' + nameOf(HANDLE_COLORS, state.handleColor).toLowerCase();
-  if (state.handle === 'knob') handleTxt = 'gombíky, ' + nameOf(HANDLE_COLORS, state.handleColor).toLowerCase();
-  if (state.handle === 'edge') handleTxt = 'lišta, ' + nameOf(HANDLE_COLORS, state.handleColor).toLowerCase();
+    ? (L.n * L.r) + ' drawers (' + L.n + ' × ' + L.r + ')'
+    : L.n + (L.n === 1 ? ' door' : ' doors');
+  var handleTxt = 'no handles';
+  if (state.handle === 'bar') handleTxt = 'bar handles ' + L.c2c + ' mm, ' + nameOf(HANDLE_COLORS, state.handleColor).toLowerCase();
+  if (state.handle === 'knob') handleTxt = 'knobs, ' + nameOf(HANDLE_COLORS, state.handleColor).toLowerCase();
+  if (state.handle === 'edge') handleTxt = 'rail, ' + nameOf(HANDLE_COLORS, state.handleColor).toLowerCase();
 
   var rows = [
-    ['Rozmery', state.w + ' × ' + state.h + ' × ' + state.d + ' cm', true],
-    ['Čelá', fronts, false],
-    ['Povrch', surface, false],
-    ['Materiál', MATS[state.material].name + ', ' + nameOf(FINISHES, state.finish).toLowerCase(), false],
-    ['Rúčky', handleTxt, false],
-    ['Podstavec', nameOf(LEGS, state.legs).toLowerCase() + ', ' + L.legH + ' cm', false]
+    ['Dimensions', state.w + ' × ' + state.h + ' × ' + state.d + ' cm', true],
+    ['Fronts', fronts, false],
+    ['Surface', surface, false],
+    ['Material', MATS[state.material].name + ', ' + nameOf(FINISHES, state.finish).toLowerCase(), false],
+    ['Handles', handleTxt, false],
+    ['Base', nameOf(LEGS, state.legs).toLowerCase() + ', ' + L.legH + ' cm', false]
   ];
   document.getElementById('sum').innerHTML = rows.map(function (r) {
     return '<dt>' + r[0] + '</dt><dd' + (r[2] ? ' class="mono"' : '') + '>' + r[1] + '</dd>';

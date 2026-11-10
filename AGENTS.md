@@ -1,72 +1,72 @@
 # AGENTS.md
 
-Návod pre vývoj a údržbu tohto projektu (pre ľudí aj AI agentov).
+Guide for developing and maintaining this project (for humans and AI agents alike).
 
-## O projekte
+## About the project
 
-`Furniture` je čisto klientsky „Konfigurátor nábytku" — interaktívna 3D vizualizácia komody
-na mieru. Používa **Three.js r128** (načítaný cez CDN) a natívne **ES moduly**. Bez build
-kroku, bez závislostí na `npm`.
+`Furniture` is a purely client-side "Furniture Configurator" — an interactive 3D
+visualization of a made-to-measure chest of drawers. It uses **Three.js r128** (loaded via
+CDN) and native **ES modules**. No build step, no `npm` dependencies.
 
-**Stav projektu:** absolútne raná verzia (prototyp), nesúvisí s beta verziou. Konečný cieľ
-je eshop — zatiaľ nie je rozhodnuté, či na vlastnom riešení alebo na WordPresse. Tento 3D
-konfigurátor je samostatný klientsky celok, ktorý má ostať znovupoužiteľný. Podrobnosti v
-`architecture.md`. Nič z toho zatiaľ neimplementovať.
+**Project status:** absolutely early version (prototype), unrelated to the beta version. The
+end goal is an eshop — it is not yet decided whether it will be built on a custom solution
+or on WordPress. This 3D configurator is a standalone client-side unit that should stay
+reusable. Details in `architecture.md`. Do not implement any of that yet.
 
-## Spustenie
+## Running
 
-Projekt nemá build. Stačí staticky servírovať koreň repozitára, napr.:
+The project has no build. Just statically serve the repository root, e.g.:
 
 ```sh
 npx serve .
-# alebo
+# or
 python -m http.server 8000
 ```
 
-Potom otvoriť `http://localhost:8000`. ES moduly aj CDN skripty vyžadujú HTTP(S), takže
-priamy `file://` otvorený `index.html` nebude fungovať.
+Then open `http://localhost:8000`. ES modules and CDN scripts require HTTP(S), so opening
+`index.html` directly via `file://` will not work.
 
-## Štruktúra
+## Structure
 
 ```
-index.html        # HTML kostra (markup, CDN skripty, vstupný modul)
-css/style.css     # všetky štýly + dizajnové tokeny (CSS premenné)
-js/main.js        # vstupný bod: drôty udalostí, spustenie
-js/data.js        # statické dáta (drevo, farby, materiály, rúčky, …)
-js/state.js       # centrálny mutovateľný stav + reset
-js/layout.js      # výpočet rozmerov/rozloženia z aktuálneho stavu
-js/textures.js    # procedurálne generované textúry dreva (canvas)
-js/ui.js          # vykreslenie formulára a súhrnu (DOM)
-js/scene.js       # Three.js scéna, materiály, stavba modelu
+index.html        # HTML skeleton (markup, CDN scripts, entry module)
+css/style.css     # all styles + design tokens (CSS variables)
+js/main.js        # entry point: event wiring, startup
+js/data.js        # static data (wood, colours, materials, handles, ...)
+js/state.js       # central mutable state + reset
+js/layout.js      # dimension/layout calculations from the current state
+js/textures.js    # procedurally generated wood textures (canvas)
+js/ui.js          # form and summary rendering (DOM)
+js/scene.js       # Three.js scene, materials, model building
 ```
 
-## Konvencie
+## Conventions
 
-- **Bez build kroku** — nepřidávať závislosti na Node/bundler, pokiaľ to nie je vyslovene požadované.
-- **ES moduly** — kód v `js/` používa `import`/`export`. Nezavádzať globálne premenné.
-- **Dátový tok je jednosmerný**: `data.js` (nemenné) → `state.js` (mutovateľný stav) →
-  `layout.js` (odvodené rozmery) → `ui.js` (DOM) a `scene.js` (3D). Pozri `architecture.md`.
-- **Stav** je jediný `state` objekt z `js/state.js`. Zmena stavu sa robí mutáciou
-  `state[key] = value` a následným zavolaním `refresh()` (`updateUI()` + `build()`).
-  Pri resete používať `resetState()` (nie novú referenciu).
-- **Three.js** sa pristupuje cez `window.THREE` v `js/scene.js`; neimportovať ho ako modul.
-- **Názvy identifikátorov** (hodnoty stavu) sa zhodujú s kľúčmi v `data.js` a s `name`/`id`
-  atribútmi v generovanom formulári. Pri pridávaní možnosti zachovať túto väzbu.
-- **Kód bez komentárov** mimo krátkych štrukturálnych oddelení, ktoré už existujú.
-- Texty používateľského rozhrania sú po slovensky.
+- **No build step** — do not add Node/bundler dependencies unless explicitly requested.
+- **ES modules** — code in `js/` uses `import`/`export`. Do not introduce global variables.
+- **Data flow is one-way**: `data.js` (immutable) → `state.js` (mutable state) →
+  `layout.js` (derived dimensions) → `ui.js` (DOM) and `scene.js` (3D). See `architecture.md`.
+- **State** is the single `state` object from `js/state.js`. State changes are made by
+  mutating `state[key] = value` and then calling `refresh()` (`updateUI()` + `build()`).
+  On reset, use `resetState()` (not a new reference).
+- **Three.js** is accessed via `window.THREE` in `js/scene.js`; do not import it as a module.
+- **Identifier names** (state values) match the keys in `data.js` and the `name`/`id`
+  attributes in the generated form. Keep this binding when adding an option.
+- **Code without comments** except the short structural separators that already exist.
+- The whole project (code, comments, documentation, UI texts) is kept in **English**.
 
 ## Git
 
-- **Commitovať ani pushovať len na výslovný príkaz.** Bez neho nechávať zmeny len v pracovnom strome.
+- **Only commit and push on explicit request.** Otherwise leave changes in the working tree.
 
-## Zmeny a dokumentácia
+## Changes and documentation
 
-Pri každej zmene aktualizujte `changelog.md` (nový záznam pod „Nepublikované") a podľa
-potreby `architecture.md`. Tieto súbory musia zostať vždy aktuálne.
+With every change, update `changelog.md` (new entry under "Unreleased") and, as needed,
+`architecture.md`. These files must always stay current.
 
-## Kontrola
+## Checking
 
-- Pre rýchlu kontrolu syntaxe modulov spustiť `node --check js/main.js` (neodhalí chyby
-  importov, ale odhalí syntaktické chyby).
-- Funkčnosť overiť v prehliadači: načítať stránku, meniť posuvníky a voľby, skopírovať
-  konfiguráciu, obnoviť pohľad.
+- For a quick syntax check of modules, run `node --check js/main.js` (it will not catch
+  import errors, but it will catch syntax errors).
+- Verify functionality in the browser: load the page, move the sliders and options, copy
+  the configuration, reset the view.

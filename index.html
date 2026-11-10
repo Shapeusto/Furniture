@@ -1,10 +1,10 @@
 <!doctype html>
-<html lang="sk">
+<html lang="en">
 <head>
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
   <meta name="claude:viewport-fit-sides" content="cover">
-  <title>Konfigurátor nábytku</title>
+  <title>Furniture configurator</title>
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600&family=Space+Grotesk:wght@500;600&family=IBM+Plex+Mono:wght@400;500&display=swap" rel="stylesheet">
@@ -12,35 +12,35 @@
 </head>
 <body>
   <div class="app">
-    <section class="stage" id="stage" aria-label="3D náhľad nábytku">
-      <canvas id="gl" aria-label="Interaktívny 3D model komody"></canvas>
+    <section class="stage" id="stage" aria-label="3D furniture preview">
+      <canvas id="gl" aria-label="Interactive 3D model of a chest of drawers"></canvas>
       <div class="overlay top"><div class="dims" id="dims"></div></div>
       <div class="overlay bottom">
-        <span class="help">Ťahaním otáčate, kolieskom alebo štipnutím približujete.</span>
-        <button type="button" class="ghost" id="resetView">Obnoviť pohľad</button>
+        <span class="help">Drag to rotate, scroll or pinch to zoom.</span>
+        <button type="button" class="ghost" id="resetView">Reset view</button>
       </div>
     </section>
 
     <aside class="panel">
       <div class="panel-in">
         <header>
-          <p class="eyebrow">Konfigurátor nábytku</p>
-          <h1>Komoda na mieru</h1>
-          <p class="lead">Nastavte rozmery, drevo, farbu a rúčky. Model vľavo sa mení okamžite.</p>
+          <p class="eyebrow">Furniture configurator</p>
+          <h1>Custom chest of drawers</h1>
+          <p class="lead">Set the dimensions, wood, colour and handles. The model on the left updates instantly.</p>
         </header>
 
         <form id="controls" onsubmit="return false"></form>
 
         <section class="summary" aria-live="polite">
-          <h2>Vaša konfigurácia</h2>
+          <h2>Your configuration</h2>
           <dl id="sum"></dl>
           <div class="actions">
-            <button type="button" class="btn" id="copyCfg">Kopírovať konfiguráciu</button>
-            <button type="button" class="btn secondary" id="resetCfg">Pôvodné nastavenie</button>
+            <button type="button" class="btn" id="copyCfg">Copy configuration</button>
+            <button type="button" class="btn secondary" id="resetCfg">Reset to defaults</button>
           </div>
           <p class="status" id="status" role="status"></p>
-          <textarea id="json" readonly hidden aria-label="Konfigurácia vo formáte JSON"></textarea>
-          <p class="note">Textúry dreva sa v tomto prototype generujú kódom. V ostrej verzii ich nahradíte fotografiami vašich materiálov, rúčky môžu byť 3D modely od výrobcu.</p>
+          <textarea id="json" readonly hidden aria-label="Configuration as JSON"></textarea>
+          <p class="note">Wood textures are generated procedurally in this prototype. In the production version, replace them with photos of your materials; handles can be 3D models from the manufacturer.</p>
         </section>
       </div>
     </aside>

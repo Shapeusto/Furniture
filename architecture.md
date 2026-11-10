@@ -1,58 +1,57 @@
 # architecture.md
 
-## Prehľad
+## Overview
 
-Aplikácia je čisto klientska, jednostránková a bez build kroku. HTML kostra (`index.html`)
-načíta štýly (`css/style.css`), Three.js r128 + OrbitControls z CDN a vstupný ES modul
-(`js/main.js`). Všetka logika je rozdelená do malých modulov podľa zodpovednosti.
+The application is purely client-side, single-page and has no build step. The HTML skeleton
+(`index.html`) loads the styles (`css/style.css`), Three.js r128 + OrbitControls from a CDN,
+and the entry ES module (`js/main.js`). All logic is split into small modules by responsibility.
 
-## Dátový tok
+## Data flow
 
 ```
-data.js  ──►  state.js  ──►  layout.js  ──►  ui.js  (DOM formulár + súhrn)
-   │                                       └──►  scene.js (Three.js scéna)
-   └──────────────────────────────────────────►  textures.js (canvas textúry)
+data.js  ──►  state.js  ──►  layout.js  ──►  ui.js  (DOM form + summary)
+   │                                       └──►  scene.js (Three.js scene)
+   └──────────────────────────────────────────►  textures.js (canvas textures)
 ```
 
-1. **`data.js`** — nemenné statické dáta: `WOODS`, `MATS`, `FINISHES`, `COLORS`,
-   `HANDLES`, `HANDLE_COLORS`, `FRONTS`, `LEGS`, `STD_C2C` a `DEFAULTS`.
-2. **`state.js`** — jediný mutovateľný objekt `state` inicializovaný z `DEFAULTS`
-   a funkcia `resetState()`. Je zdrojom pravdy pre aktuálnu konfiguráciu.
-3. **`layout.js`** — čisté funkcie odvodzujúce rozmery z `state` (`layout()`), napr.
-   počet stĺpcov/riadov, rozmery čiel a rozstup rúčok. Bez DOM a bez Three.js.
-4. **`ui.js`** — vykresľuje formulár (`buildForm()`), synchronizuje vstupy
-   (`syncInputs()`) a aktualizuje dimenzie + súhrn (`updateUI()`). Zdieľa `layout()`
-   a `woodCanvas()`.
-5. **`scene.js`** — zapuzdruje Three.js: renderer, scénu, kameru, ovládanie, materiály
-   (cache `matCache`, `texCache`) a stavbu modelu (`build()`, `resetView()`, `initThree()`).
-6. **`textures.js`** — procedurálne generovanie tileable textúr dreva do canvasu
-   (`woodCanvas()`), s vlastnou cache `canvasCache`. Nezávislé od Three.js.
+1. **`data.js`** — immutable static data: `WOODS`, `MATS`, `FINISHES`, `COLORS`,
+   `HANDLES`, `HANDLE_COLORS`, `FRONTS`, `LEGS`, `STD_C2C` and `DEFAULTS`.
+2. **`state.js`** — the single mutable `state` object initialized from `DEFAULTS`, plus
+   `resetState()`. It is the source of truth for the current configuration.
+3. **`layout.js`** — pure functions deriving dimensions from `state` (`layout()`), e.g. the
+   number of columns/rows, front sizes and handle spacing. No DOM, no Three.js.
+4. **`ui.js`** — renders the form (`buildForm()`), synchronizes inputs (`syncInputs()`) and
+   updates the dimensions and summary (`updateUI()`). Shares `layout()` and `woodCanvas()`.
+5. **`scene.js`** — encapsulates Three.js: renderer, scene, camera, controls, materials
+   (caches `matCache`, `texCache`) and model building (`build()`, `resetView()`, `initThree()`).
+6. **`textures.js`** — procedural generation of tileable wood textures into a canvas
+   (`woodCanvas()`), with its own `canvasCache`. Independent of Three.js.
 
-## Vstupný bod (`main.js`)
+## Entry point (`main.js`)
 
-- Volá `buildForm()` → `syncInputs()` → `initThree()` → `refresh()`.
+- Calls `buildForm()` → `syncInputs()` → `initThree()` → `refresh()`.
 - `refresh()` = `updateUI()` + `build()`.
-- Pripája udalosti formulára (`input` pre posuvníky, `change` pre radio tlačidlá),
-  tlačidlá `resetCfg` a `copyCfg` (kopírovanie JSON konfigurácie do schránky).
+- Wires form events (`input` for sliders, `change` for radio buttons), and the `resetCfg`
+  and `copyCfg` buttons (copying the JSON configuration to the clipboard).
 
-## Budúce smerovanie (dôležité pre rozhodovanie)
+## Future direction (important for decision-making)
 
-- Toto je **absolútne raná verzia** (prototyp). Nemá nič spoločné s beta verziou.
-- Cieľový produkt je **eshop**. Ešte **nie je rozhodnuté**, či bude postavený na vlastnom
-  riešení alebo na **WordPresse**.
-- Z toho vyplýva: aktuálny 3D konfigurátor je samostatný, čisto klientsky celok. Pri
-  rozhodovaní o nových funkciách treba myslieť na to, že neskôr môže byť osadený do iného
-  prostredia (WordPress/plugin, serverový backend, nákupný košík, PIM/ERP).
-- Zatiaľ sa nič z toho **neimplementuje**; voľby nižšie treba len brať do úvahy, aby sa
-  prototyp nezatváral pred budúcim znovupoužitím.
+- This is an **absolutely early version** (prototype). It has nothing to do with the beta version.
+- The end product is an **eshop**. It is **not yet decided** whether it will be built on a
+  custom solution or on **WordPress**.
+- Consequently: the current 3D configurator is a standalone, purely client-side unit. When
+  deciding on new features, keep in mind that it may later be embedded in a different
+  environment (WordPress/plugin, server backend, shopping cart, PIM/ERP).
+- None of that is implemented yet; just take these options into account so the prototype
+  does not close itself off from future reuse.
 
-## Kľúčové rozhodnutia
+## Key decisions
 
-- **Three.js cez CDN + globálny `THREE`**, nie npm — zachováva bez-build charakter.
-  `scene.js` ho číta z `window.THREE` a degraduje s chybovou hláškou, ak sa nenačíta
-  alebo ak chýba WebGL.
-- **Procedurálne textúry dreva** nahrádzajú fotografie materiálov v prototype
-  (generované v `textures.js`, znovu použité aj pre swatch voľby dreva).
-- **Responsivita**: grid rozloženie „scéna | panel", na úzkych obrazovkách sa scéna
-  stane sticky a panel sa posúva pod ňou (`css/style.css`).
-- **Téma**: CSS premenné + podpora `prefers-color-scheme` a `data-theme`.
+- **Three.js via CDN + global `THREE`**, not npm — keeps the no-build character. `scene.js`
+  reads it from `window.THREE` and degrades with an error message if it fails to load or if
+  WebGL is missing.
+- **Procedural wood textures** replace photos of materials in the prototype (generated in
+  `textures.js`, reused for the wood swatches).
+- **Responsiveness**: grid layout "stage | panel"; on narrow screens the stage becomes
+  sticky and the panel scrolls beneath it (`css/style.css`).
+- **Theme**: CSS variables + support for `prefers-color-scheme` and `data-theme`.
