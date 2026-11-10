@@ -1,0 +1,53 @@
+<!doctype html>
+<html lang="sk">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+  <meta name="claude:viewport-fit-sides" content="cover">
+  <title>Konfigurátor nábytku</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600&family=Space+Grotesk:wght@500;600&family=IBM+Plex+Mono:wght@400;500&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="css/style.css">
+</head>
+<body>
+  <div class="app">
+    <section class="stage" id="stage" aria-label="3D náhľad nábytku">
+      <canvas id="gl" aria-label="Interaktívny 3D model komody"></canvas>
+      <div class="overlay top"><div class="dims" id="dims"></div></div>
+      <div class="overlay bottom">
+        <span class="help">Ťahaním otáčate, kolieskom alebo štipnutím približujete.</span>
+        <button type="button" class="ghost" id="resetView">Obnoviť pohľad</button>
+      </div>
+    </section>
+
+    <aside class="panel">
+      <div class="panel-in">
+        <header>
+          <p class="eyebrow">Konfigurátor nábytku</p>
+          <h1>Komoda na mieru</h1>
+          <p class="lead">Nastavte rozmery, drevo, farbu a rúčky. Model vľavo sa mení okamžite.</p>
+        </header>
+
+        <form id="controls" onsubmit="return false"></form>
+
+        <section class="summary" aria-live="polite">
+          <h2>Vaša konfigurácia</h2>
+          <dl id="sum"></dl>
+          <div class="actions">
+            <button type="button" class="btn" id="copyCfg">Kopírovať konfiguráciu</button>
+            <button type="button" class="btn secondary" id="resetCfg">Pôvodné nastavenie</button>
+          </div>
+          <p class="status" id="status" role="status"></p>
+          <textarea id="json" readonly hidden aria-label="Konfigurácia vo formáte JSON"></textarea>
+          <p class="note">Textúry dreva sa v tomto prototype generujú kódom. V ostrej verzii ich nahradíte fotografiami vašich materiálov, rúčky môžu byť 3D modely od výrobcu.</p>
+        </section>
+      </div>
+    </aside>
+  </div>
+
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/three@0.128.0/examples/js/controls/OrbitControls.js"></script>
+  <script type="module" src="js/main.js"></script>
+</body>
+</html>
